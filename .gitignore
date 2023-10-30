@@ -9,3 +9,10 @@
 
 # Undo-tree save-files
 *.~undo-tree
+
+# Generated files
+subconf/
+config.*
+!config.org
+*.el
+setup.sh
