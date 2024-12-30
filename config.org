@@ -4238,6 +4238,45 @@ Now we just need to actually implement that metadata extraction function.
 
 #+call: confpkg("ox-latex", after="ox-latex")
 
+**** Global Variable Replacement
+
+I want to globally replace certain variables in my Org documents when exporting.
+This is one possible implementation of that feature.
+
+#+begin_src emacs-lisp
+(defun org-build-pdf ()
+  "Export the current Org file to LaTeX, process variables using python, then compile a PDF."
+  (interactive)
+  (let* ((org-file (buffer-file-name))
+         (latex-file (concat (file-name-sans-extension org-file) ".tex"))
+         (pdf-file (concat (file-name-sans-extension org-file) ".pdf"))
+         (script (concat (file-name-sans-extension org-file) ".py")))
+    (unless (eq major-mode 'org-mode)
+      (error "Not in an Org buffer"))
+    ;; Export to LaTeX
+    (org-latex-export-to-latex)
+    (message "Exported to %s" latex-file)
+    ;; Run script
+    (when (file-exists-p latex-file)
+      (start-process-shell-command "Run Python script" nil
+                                   (format "python3 %s %s > /dev/null 2>&1" script org-file))
+      (message "Processed %s with %s" latex-file script))
+    ;; Compile PDF
+    (when (file-exists-p latex-file)
+      (start-process-shell-command "Run latexmk" nil
+                                   (format "LC_ALL=en_US.UTF-8 latexmk -f -pdf -latex=pdflatex -shell-escape -interaction=nonstopmode -output-directory=. %s > /dev/null 2>&1" latex-file))
+      (message "Compiled pdf file %s" pdf-file))
+    ;; Clean up
+    (when (file-exists-p pdf-file)
+      (start-process-shell-command "Clean up latexmk" nil
+                                   "latexmk -c > /dev/null 2>&1")
+      (message "Cleaned up temporary files"))
+    ;; Notify User
+    (if (file-exists-p pdf-file)
+        (message "PDF successfully created: %s" pdf-file)
+      (error "Failed to create PDF"))))
+#+end_src
+
 **** Compiling
 
 By default Org uses ~pdflatex~ \times 3 + ~bibtex~. This simply won't do in our
@@ -4733,7 +4772,8 @@ To start with I'll create a default state variable and register =fontset= as par
 of =#+options=.
 
 #+begin_src emacs-lisp
-(defvar org-latex-default-fontset 'alegreya
+;;(defvar org-latex-default-fontset 'alegreya
+(defvar org-latex-default-fontset 'times
   "Fontset from `org-latex-fontsets' to use by default.
 As cm (computer modern) is TeX's default, that causes nothing
 to be added to the document.
@@ -5728,7 +5768,7 @@ able to handle anyway. For them we define a table of LaTeX translations
 | ν         | \(\nu\)       |
 | ξ         | \(\xi\)       |
 | π         | \(\pi\)       |
-| ϖ         | \(\varpi\)       |
+| ϖ        | \(\varpi\)      |
 | ρ         | \(\rho\)       |
 | ϱ         | \(\varrho\) |
 | σ         | \(\sigma\)       |
@@ -5737,19 +5777,19 @@ able to handle anyway. For them we define a table of LaTeX translations
 | υ         | \(\upsilon\)       |
 | ϕ         | \(\phi\)       |
 | φ         | \(\varphi\)       |
-| ψ         | \(\psi\)       |
-| ω         | \(\omega\)       |
+| ψ        | \(\psi\)      |
+| ω        | \(\omega\)      |
 | Γ         | \(\Gamma\)       |
 | Δ         | \(\Delta\)       |
-| Θ         | \(\Theta\)       |
+| Θ        | \(\Theta\)      |
 | Λ         | \(\Lambda\)       |
 | Ξ         | \(\Xi\)       |
 | Π         | \(\Pi\)       |
 | Σ         | \(\Sigma\)       |
 | Υ         | \(\Upsilon\)       |
-| Φ         | \(\Phi\)       |
-| Ψ         | \(\Psi\)       |
-| Ω         | \(\Omega\)       |
+| Φ        | \(\Phi\)      |
+| Ψ        | \(\Psi\)      |
+| Ω        | \(\Omega\)      |
 | א         | \(\aleph\)       |
 | ב         | \(\beth\)       |
 | ד         | \(\daleth\) |
