@@ -6318,6 +6318,21 @@ Not added when either:
     result))
 #+end_src
 
+** Typst
+
+#+call: confpkg("!Pkg typst")
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! typst-ts-mode :recipe (:type git :host codeberg :repo "meow_king/typst-ts-mode"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! typst-ts-mode
+  :custom
+  (typst-ts-watch-options "--open")
+  (typst-ts-mode-enable-raw-blocks-highlight t))
+#+end_src
+
 ** LaTeX
 
 #+call: confpkg()
