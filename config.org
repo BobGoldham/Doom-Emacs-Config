@@ -1464,6 +1464,15 @@ Usually, the sane approach would be to heck if all relevant fonts
 are actually installed. *However*, Emacs in its current version just crashes
 on startup if any of them aren't. I'll add this if it ever becomes relevant.
 
+**** Opacity
+
+I like having some window transparency, and with ~emacs-wayland~, this is natively
+supported
+
+#+begin_src emacs-lisp
+(set-frame-parameter nil 'alpha-background 80)
+#+end_src
+
 **** Theme
 
 The default is ~doom-one~, so I will use ~doom-one~.
