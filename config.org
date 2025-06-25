@@ -2241,57 +2241,39 @@ Then adding a regex for it to =~/.config/git/config=
 *** Packages
 **** Org itself
 
-#+name: org-pkg-statement
-#+begin_src emacs-lisp :noweb-ref none
-(or (require 'doom (expand-file-name "lisp/doom.el"
-                                     (or (bound-and-true-p doom-emacs-dir)
-                                         user-emacs-directory)))
-    (setq doom-local-dir
-          (expand-file-name ".local/" (or (bound-and-true-p doom-emacs-dir)
-                                          user-emacs-directory))))
-(let ((dev-key-p (and (file-exists-p "~/.ssh/id_ed25519.pub")
-                      (= 0 (shell-command "cat ~/.ssh/id_ed25519.pub | grep -q AAAAC3NzaC1lZDI1NTE5AAAAIOZZqcJOLdN+QFHKyW8ST2zz750+8TdvO9IT5geXpQVt"))))
-      (recipe-common '(:files (:defaults "etc")
-                       :build t
-                       :pre-build
-                       (with-temp-file "lisp/org-version.el"
-                         (require 'lisp-mnt)
-                         (let ((version ;; (lm-version "lisp/org.el")
-                                (with-temp-buffer
-                                  (insert-file-contents "lisp/org.el")
-                                  (lm-header "version")))
-                               (git-version (string-trim
-                                             (with-temp-buffer
-                                               (call-process "git" nil t nil
-                                                             "rev-parse" "--short" "HEAD")
-                                               (buffer-string)))))
-                           (insert (format "(defun org-release () \"The release version of Org.\" %S)\n"
-                                           version)
-                                   (format "(defun org-git-version () \"The truncate git commit hash of Org mode.\" %S)\n"
-                                           git-version)
-                                   "(provide 'org-version)\n"))))))
-  (with-temp-buffer
-    (insert
-     (pp `(package! org
-            :recipe (,@(if dev-key-p
-                           (list :host nil :repo "tec@git.savannah.gnu.org:/srv/git/emacs/org-mode.git" :local-repo "lisp/org"
-                                 :fork (list :host nil :repo "git@code.tecosaur.net:tec/org-mode.git" :branch "dev" :remote "tecosaur"))
-                         (list :host nil :repo "https://code.tecosaur.net/mirrors/org-mode.git" :remote "mirror"
-                               :fork (list :host nil :repo "https://code.tecosaur.net/tec/org-mode.git" :branch "dev" :remote "tecosaur")))
-                     ,@recipe-common)
-            :pin nil)))
-    (untabify (point-min) (point-max))
-    (buffer-string)))
-#+end_src
-
 #+begin_src emacs-lisp :tangle packages.el :noweb no-export
-<<org-pkg-statement()>>
-(unpin! org) ; there be bugs
+(package! org
+  :recipe (:host nil
+           :repo "https://code.tecosaur.net/mirrors/org-mode.git"
+           :remote "mirror"
+           :fork (:host nil
+                  :repo "https://code.tecosaur.net/tec/org-mode.git"
+                  :branch "dev"
+                  :remote "tecosaur")
+           :files (:defaults "etc")
+           :build t
+           :pre-build
+           (with-temp-file "lisp/org-version.el"
+             (require 'lisp-mnt)
+             (let ((version
+                    (with-temp-buffer
+                      (insert-file-contents "lisp/org.el")
+                      (lm-header "version")))
+                   (git-version
+                    (string-trim
+                     (with-temp-buffer
+                       (call-process "git" nil t nil
+                                     "rev-parse" "--short" "HEAD")
+                       (buffer-string)))))
+               (insert (format "(defun org-release () \"The release version of Org.\" %S)\n" version)
+                       (format "(defun org-git-version () \"The truncate git commit hash of Org mode.\" %S)\n" git-version)
+                       "(provide 'org-version)\n"))))
+  :pin nil)
 (package! org-contrib
   ;; The `sr.ht' repo has been a bit flaky as of late.
   :recipe (:host github :repo "emacsmirror/org-contrib"
            :files ("lisp/*.el"))
-  :pin "d4056ce5d5611e1c971c151f182a2d407226fdb1")
+  :pin "8d14a600a2069ffc494edfc9a12b8e5fc8840bf1")
 #+end_src
 
 
@@ -2438,7 +2420,7 @@ There's a really cool package in development to /transclude/ Org document conten
 
 Came across this and ... it's cool
 #+begin_src emacs-lisp :tangle packages.el
-(package! org-graph-view :recipe (:host github :repo "alphapapa/org-graph-view") :pin "233c6708c1f37fc60604de49ca192497aef39757")
+(package! org-graph-view :recipe (:host github :repo "alphapapa/org-graph-view") :pin "172157aee1131ea59f0bd724a10abfdbccbd860e")
 #+end_src
 
 ***** Just Another Pandoc Format
@@ -3286,8 +3268,7 @@ and out of the LaTeX fragments.
 Thankfully, all we need to do to make this happen is use ~org-latex-preview-auto-mode~.
 
 #+begin_src emacs-lisp
-;; TODO: This seems to break stuff, notably: Fancy heading points
-;;(add-hook 'org-mode-hook #'org-latex-preview-auto-mode)
+;; (add-hook 'org-mode-hook #'org-latex-preview-auto-mode)
 #+end_src
 
 ***** Prettier rendering
@@ -3311,7 +3292,7 @@ To this, we make two additions:
 + Selection of a maths font that fits better with displayed text.
 
 #+begin_src emacs-lisp :noweb no-export :noweb-prefix no
-(setq org-latex-preview-header
+(setq org-latex-preview-preamble
       (concat
        <<grab("latex-default-snippet-preamble")>>
        "\n% Custom font\n\\usepackage{arev}\n\n"
@@ -5760,46 +5741,46 @@ able to handle anyway. For them we define a table of LaTeX translations
 #+name: latex-non-ascii-char-substitutions
 | Character | LaTeX       |
 |-----------+-------------|
-| ɑ         | \(\alpha\)       |
-| β         | \(\beta\)       |
+| ɑ        | \(\alpha\)      |
+| β        | \(\beta\)      |
 | γ         | \(\gamma\)       |
-| δ         | \(\delta\)       |
+| δ        | \(\delta\)      |
 | ε         | \(\epsilon\)       |
-| ϵ         | \(\varepsilon\)       |
+| ϵ        | \(\varepsilon\)       |
 | ζ         | \(\zeta\)       |
-| η         | \(\eta\)       |
-| θ         | \(\theta\)       |
-| ϑ         | \(\vartheta\)       |
+| η        | \(\eta\)      |
+| θ        | \(\theta\)      |
+| ϑ        | \(\vartheta\)      |
 | ι         | \(\iota\)       |
 | κ         | \(\kappa\)       |
 | λ         | \(\lambda\)       |
-| μ         | \(\mu\)       |
+| μ        | \(\mu\)      |
 | ν         | \(\nu\)       |
 | ξ         | \(\xi\)       |
-| π         | \(\pi\)       |
+| π        | \(\pi\)      |
 | ϖ        | \(\varpi\)      |
-| ρ         | \(\rho\)       |
-| ϱ         | \(\varrho\) |
-| σ         | \(\sigma\)       |
+| ρ        | \(\rho\)      |
+| ϱ        | \(\varrho\) |
+| σ        | \(\sigma\)      |
 | ς         | \(\varsigma\)       |
 | τ         | \(\tau\)       |
-| υ         | \(\upsilon\)       |
-| ϕ         | \(\phi\)       |
-| φ         | \(\varphi\)       |
+| υ        | \(\upsilon\)      |
+| ϕ        | \(\phi\)      |
+| φ        | \(\varphi\)      |
 | ψ        | \(\psi\)      |
 | ω        | \(\omega\)      |
 | Γ         | \(\Gamma\)       |
-| Δ         | \(\Delta\)       |
+| Δ        | \(\Delta\)      |
 | Θ        | \(\Theta\)      |
-| Λ         | \(\Lambda\)       |
+| Λ        | \(\Lambda\)      |
 | Ξ         | \(\Xi\)       |
-| Π         | \(\Pi\)       |
+| Π        | \(\Pi\)      |
 | Σ         | \(\Sigma\)       |
-| Υ         | \(\Upsilon\)       |
+| Υ        | \(\Upsilon\)      |
 | Φ        | \(\Phi\)      |
 | Ψ        | \(\Psi\)      |
 | Ω        | \(\Omega\)      |
-| א         | \(\aleph\)       |
+| א         | \(\aleph\)      |
 | ב         | \(\beth\)       |
 | ד         | \(\daleth\) |
 | ג         | \(\gimel\)       |
@@ -6338,7 +6319,7 @@ Not added when either:
 #+begin_src emacs-lisp
 (use-package! typst-ts-mode
   :custom
-  (typst-ts-watch-options "--open")
+  (typst-ts-watch-options '("--open"))
   (typst-ts-mode-enable-raw-blocks-highlight t))
 #+end_src
 
