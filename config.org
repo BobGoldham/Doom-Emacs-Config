@@ -1502,12 +1502,12 @@ I use Emacs for editing text, notes and source-code, and little else.
 ***** Setting fonts
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Fantasque Sans Mono" :size 24)
-      doom-big-font (font-spec :family "Fantasque Sans Mono" :size 36)
-      doom-variable-pitch-font (font-spec :family "Overpass" :size 26)
+(setq doom-font (font-spec :family "Fantasque Sans Mono" :size 18)
+      doom-big-font (font-spec :family "Fantasque Sans Mono" :size 27)
+      doom-variable-pitch-font (font-spec :family "Overpass" :size 20)
       doom-symbol-font (font-spec :family "JuliaMono")
       doom-emoji-font (font-spec :family "Twemoji")
-      doom-serif-font (font-spec :family "IBM Plex Mono" :size 22 :weight 'light))
+      doom-serif-font (font-spec :family "IBM Plex Mono" :size 16 :weight 'light))
 #+end_src
 
 ***** Emojis
@@ -2210,7 +2210,7 @@ tweaks.
   (add-hook 'doom-init-ui-hook #'global-jinx-mode)
   :config
   ;; Use my custom dictionary
-  (setq jinx-languages "en-custom")
+  (setq jinx-languages "en_US")
   ;; Extra face(s) to ignore
   (push 'org-inline-src-block
         (alist-get 'org-mode jinx-exclude-faces))
@@ -2450,7 +2450,7 @@ in ~:init~, and the segment function itself is autoloaded.
   :init
   (after! doom-modeline
     (add-to-list 'doom-modeline-fn-alist
-                 (const 'media-player #'doom-modeline-segment--media-player)))
+                 (cons 'media-player #'doom-modeline-segment--media-player)))
   :config
   (defun +single-fullscreen-window-p ()
     (and (memq (frame-parameter nil 'fullscreen) '(fullscreen fullboth))
@@ -2517,22 +2517,22 @@ From the =:ui zen= module.
 
 We'd like to use mixed pitch in certain modes. If we simply add a hook, when
 directly opening a file with (a new) Emacs =mixed-pitch-mode= runs before UI
-initialisation, which is problematic. To resolve this, we create a hook that
-runs after UI initialisation and both
+initialization, which is problematic. To resolve this, we create a hook that
+runs after UI initialization and both
 + conditionally enables =mixed-pitch-mode=
 + sets up the mixed pitch hooks
 
 #+begin_src emacs-lisp
-(defvar mixed-pitch-modes '(org-mode LaTeX-mode markdown-mode gfm-mode Info-mode)
-  "Modes that `mixed-pitch-mode' should be enabled in, but only after UI initialisation.")
-(defun init-mixed-pitch-h ()
-  "Hook `mixed-pitch-mode' into each mode in `mixed-pitch-modes'.
-Also immediately enables `mixed-pitch-modes' if currently in one of the modes."
-  (when (memq major-mode mixed-pitch-modes)
-    (mixed-pitch-mode 1))
-  (dolist (hook mixed-pitch-modes)
-    (add-hook (intern (concat (symbol-name hook) "-hook")) #'mixed-pitch-mode)))
-(add-hook 'doom-init-ui-hook #'init-mixed-pitch-h)
+;; (defvar mixed-pitch-modes '(org-mode LaTeX-mode markdown-mode gfm-mode Info-mode)
+;;   "Modes that `mixed-pitch-mode' should be enabled in, but only after UI initialisation.")
+;; (defun init-mixed-pitch-h ()
+;;   "Hook `mixed-pitch-mode' into each mode in `mixed-pitch-modes'.
+;; Also immediately enables `mixed-pitch-modes' if currently in one of the modes."
+;;   (when (memq major-mode mixed-pitch-modes)
+;;     (mixed-pitch-mode 1))
+;;   (dolist (hook mixed-pitch-modes)
+;;     (add-hook (intern (concat (symbol-name hook) "-hook")) #'mixed-pitch-mode)))
+;; (add-hook 'doom-init-ui-hook #'init-mixed-pitch-h)
 #+end_src
 
 As mixed pitch uses the variable =mixed-pitch-face=, we can create a new function
@@ -2543,7 +2543,7 @@ subsequent face definition). This was created for writeroom mode.
 (autoload #'mixed-pitch-serif-mode "mixed-pitch"
   "Change the default face of the current buffer to a serifed variable pitch, while keeping some faces fixed pitch." t)
 
-(setq! variable-pitch-serif-font (font-spec :family "Alegreya" :size 27))
+(setq! variable-pitch-serif-font (font-spec :family "Alegreya" :size 20))
 
 (after! mixed-pitch
   (setq mixed-pitch-set-height t)
@@ -7248,46 +7248,46 @@ able to handle anyway. For them we define a table of LaTeX translations
 #+name: latex-non-ascii-char-substitutions
 | Character | LaTeX       |
 |-----------+-------------|
-| ɑ        | \(\alpha\)      |
-| β        | \(\beta\)      |
+| ɑ         | \(\alpha\)       |
+| β         | \(\beta\)       |
 | γ         | \(\gamma\)       |
-| δ        | \(\delta\)      |
+| δ         | \(\delta\)       |
 | ε         | \(\epsilon\)       |
-| ϵ        | \(\varepsilon\)       |
+| ϵ         | \(\varepsilon\)       |
 | ζ         | \(\zeta\)       |
-| η        | \(\eta\)      |
-| θ        | \(\theta\)      |
-| ϑ        | \(\vartheta\)      |
+| η         | \(\eta\)       |
+| θ         | \(\theta\)       |
+| ϑ         | \(\vartheta\)       |
 | ι         | \(\iota\)       |
 | κ         | \(\kappa\)       |
 | λ         | \(\lambda\)       |
-| μ        | \(\mu\)      |
+| μ         | \(\mu\)       |
 | ν         | \(\nu\)       |
 | ξ         | \(\xi\)       |
-| π        | \(\pi\)      |
-| ϖ        | \(\varpi\)      |
-| ρ        | \(\rho\)      |
-| ϱ        | \(\varrho\) |
-| σ        | \(\sigma\)      |
+| π         | \(\pi\)       |
+| ϖ         | \(\varpi\)       |
+| ρ         | \(\rho\)       |
+| ϱ         | \(\varrho\) |
+| σ         | \(\sigma\)       |
 | ς         | \(\varsigma\)       |
 | τ         | \(\tau\)       |
-| υ        | \(\upsilon\)      |
-| ϕ        | \(\phi\)      |
-| φ        | \(\varphi\)      |
-| ψ        | \(\psi\)      |
-| ω        | \(\omega\)      |
+| υ         | \(\upsilon\)       |
+| ϕ         | \(\phi\)       |
+| φ         | \(\varphi\)       |
+| ψ         | \(\psi\)       |
+| ω         | \(\omega\)       |
 | Γ         | \(\Gamma\)       |
-| Δ        | \(\Delta\)      |
-| Θ        | \(\Theta\)      |
-| Λ        | \(\Lambda\)      |
+| Δ         | \(\Delta\)       |
+| Θ         | \(\Theta\)       |
+| Λ         | \(\Lambda\)       |
 | Ξ         | \(\Xi\)       |
-| Π        | \(\Pi\)      |
+| Π         | \(\Pi\)       |
 | Σ         | \(\Sigma\)       |
-| Υ        | \(\Upsilon\)      |
-| Φ        | \(\Phi\)      |
-| Ψ        | \(\Psi\)      |
-| Ω        | \(\Omega\)      |
-| א         | \(\aleph\)      |
+| Υ         | \(\Upsilon\)       |
+| Φ         | \(\Phi\)       |
+| Ψ         | \(\Psi\)       |
+| Ω         | \(\Omega\)       |
+| א         | \(\aleph\)       |
 | ב         | \(\beth\)       |
 | ד         | \(\daleth\) |
 | ג         | \(\gimel\)       |
