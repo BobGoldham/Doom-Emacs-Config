@@ -2181,7 +2181,7 @@ using Git repository URLs pretty easy these days.
 #+call: confpkg("!Pkg Corfu", after="corfu")
 
 #+begin_src emacs-lisp
-(setq corfu-auto-delay 0.5)
+(setq corfu-auto-delay 0.25)
 #+end_src
 
 *** Jinx
