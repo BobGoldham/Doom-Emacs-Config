@@ -1,0 +1,30 @@
+From b33270484a95022378d3aa62825bd55708a8ecc7 Mon Sep 17 00:00:00 2001
+From: Karthik Chikmagalur <karthikchikmagalur@gmail.com>
+Date: Wed, 9 Jul 2025 16:35:09 -0700
+Subject: [PATCH] org-persist: Normalize container before inhibiting action
+
+* lisp/org-persist.el (org-persist-register):
+`org-persist--normalize-container' needs to run at least once in
+`org-persist-register' before the action is inhibited by setting
+`org-persist--inhibit-container-normalization'.
+---
+ lisp/org-persist.el | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lisp/org-persist.el b/lisp/org-persist.el
+index 99b6ca048..3ca971cd6 100644
+--- a/lisp/org-persist.el
++++ b/lisp/org-persist.el
+@@ -1016,8 +1016,8 @@ (cl-defun org-persist-register
+   ;; Sync cache with disk, dropping conflicting items between multiple
+   ;; Emacsen.
+   (org-persist--merge-index-with-disk)
++  (setq container (org-persist--normalize-container container))
+   (let ((org-persist--inhibit-container-normalization t))
+-    (setq container (org-persist--normalize-container container))
+     (setq associated (org-persist--normalize-associated associated))
+     (when inherit
+       (setq inherit (org-persist--normalize-container inherit))
+-- 
+2.49.0
+
