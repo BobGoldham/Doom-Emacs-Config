@@ -3966,7 +3966,7 @@ and out of the LaTeX fragments.
 Thankfully, all we need to do to make this happen is use ~org-latex-preview-auto-mode~.
 
 #+begin_src emacs-lisp
-;; (add-hook 'org-mode-hook #'org-latex-preview-auto-mode)
+(add-hook 'org-mode-hook #'org-latex-preview-auto-mode)
 #+end_src
 
 ***** Prettier rendering
@@ -6146,12 +6146,13 @@ Derivatives are actually a bit of a pain to typeset, it would be nice to have a
 + =\dv{f}{x}= for the derivative of =f= with respect to =x=
 + =\dv[2]{f}{x}= for the second order derivative of =f= with respect to =x=
 
-Similarly, it would be nice to have a partial derivate counterpart =\pdv= which
+Similarly, it would be nice to have a partial derivative counterpart =\pdv= which
 behaves in a similar way, but with the possibility of providing multiple
 comma-delimited variables --- e.g. =\pdv{f}{x,y,z}=.
 
 #+begin_src LaTeX
 % Easy derivatives
+\usepackage{xparse}
 \ProvideDocumentCommand\dv{o m g}{%
   \IfNoValueTF{#3}{%
     \dv[#1]{}{#2}}{%
