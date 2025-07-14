@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText © 2023 BobGoldham <sold@sold.rip>
+# SPDX-FileCopyrightText © 2023-2025 BobGoldham <sold@sold.rip>
 # SPDX-License-Identifier MIT
 #+title: Doom Emacs Configuration
 #+subtitle: Tecosaur was right..
@@ -1921,6 +1921,18 @@ let's change that, and do a few other similar tweaks while we're at it.
    '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
    '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))
    ))
+#+end_src
+
+*** Doc View Mode
+
+#+call: confpkg("!Pkg doc-view-mode")
+
+I like being able to scroll continuously when viewing documents of any kind.
+~doc-view-mode~ is the Emacs solution to viewing otherwise unsupported documents,
+such as Word files. Hence I will enable continuous scrolling this mode.
+
+#+begin_src emacs-lisp
+(setq doc-view-continuous t)
 #+end_src
 
 ** Tools
@@ -3966,7 +3978,7 @@ and out of the LaTeX fragments.
 Thankfully, all we need to do to make this happen is use ~org-latex-preview-auto-mode~.
 
 #+begin_src emacs-lisp
-(add-hook 'org-mode-hook #'org-latex-preview-auto-mode)
+;; (add-hook 'org-mode-hook #'org-latex-preview-auto-mode)
 #+end_src
 
 ***** Prettier rendering
